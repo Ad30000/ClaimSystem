@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4><i class="fas fa-lock me-2"></i>Login</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This is a prototype. Select your role to login.
+                </div>
+
+                <form method="post" action="/Account/Login">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Select Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">-- Select Role --</option>
+                            <option value="Lecturer">Lecturer (Employee)</option>
+                            <option value="Coordinator">Programme Coordinator</option>
+                            <option value="Manager">Academic Manager</option>
+                            
+                        </select>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember me</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="#" class="text-decoration-none">Forgot Password?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+﻿@model ClaimSystem.Models.Claim
+@{
+    ViewData["Title"] = "Submit New Claim";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-file-import me-2"></i>Submit New Monthly Claim</h4>
+            </div>
+            <div class="card-body">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Please fill in all required fields to submit your claim.
+                </div>
+
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="HoursWorked" class="form-label">Hours Worked *</label>
+                                <input asp-for="HoursWorked" type="number" class="form-control" placeholder="Enter hours worked" min="0.1" max="1000" step="0.5">
+                                <span asp-validation-for="HoursWorked" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AmountPerHour" class="form-label">Hourly Rate (R) *</label>
+                                <input asp-for="AmountPerHour" type="number" class="form-control" placeholder="Enter hourly rate" min="0.01" step="0.01">
+                                <span asp-validation-for="AmountPerHour" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DateSubmitted" class="form-label">Claim Date *</label>
+                                <input asp-for="DateSubmitted" type="date" class="form-control" max="@DateTime.Today.ToString("yyyy-MM-dd")">
+                                <span asp-validation-for="DateSubmitted" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="MonthClaim" class="form-label">Claim Period *</label>
+                                <input asp-for="MonthClaim" type="text" class="form-control" placeholder="e.g., February 2025">
+                                <span asp-validation-for="MonthClaim" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="AdditionalNotes" class="form-label">Description / Notes</label>
+                        <textarea asp-for="AdditionalNotes" class="form-control" rows="3" placeholder="Describe the work performed..."></textarea>
+                        <span asp-validation-for="AdditionalNotes" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="supportingDoc" class="form-label">Supporting Document</label>
+                        <input type="file" class="form-control" id="supportingDoc" name="supportingDoc" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                        <small class="form-text text-muted">Upload PDF, Word, Excel, or image files (Max 5MB)</small>
+                    </div>
+
+                    <!-- Total Amount Display (Read-only) -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Total Amount (R)</label>
+                                <input type="text" class="form-control" id="totalAmount" readonly value="0.00">
+                                <small class="form-text text-muted">Calculated automatically</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Claim
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
