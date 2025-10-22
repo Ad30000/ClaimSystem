@@ -40,3 +40,11 @@ namespace ClaimSystem
         }
     }
 }
+
+/*Part 2 Referencing
+ * Author: Raw Coding
+ * Year: 2019
+ * Title of video: ASP.NET Core - Roles vs Claims vs Policy
+ * Available at:https://www.youtube.com/watch?v=cbtK3U2aOlg&t=592s
+ * Accessed: 20 October 2025
+ */
