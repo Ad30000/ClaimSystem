@@ -63,3 +63,11 @@ namespace TestProject2
     }
 
 }
+
+/*Part 2 Referencing
+ * Author: Teddy Smith 
+ * Year: 2022
+ * Title of video: Unit Testing in C# 2022: 5. MVC Controllers
+ * Available at:https://www.youtube.com/watch?v=QnIwfFjBkTM
+ * Accessed: 20 October 2025
+ */
