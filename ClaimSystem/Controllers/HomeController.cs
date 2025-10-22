@@ -84,10 +84,17 @@ namespace ClaimSystem.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ClaimDatabaseContext _context;
 
+        public ILogger<HomeController> Object { get; }
+
         public HomeController(ILogger<HomeController> logger, ClaimDatabaseContext context)
         {
             _logger = logger;
             _context = context;
+        }
+
+        public HomeController(ILogger<HomeController> @object)
+        {
+            Object = @object;
         }
 
         public IActionResult Index()

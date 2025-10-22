@@ -1,29 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Security.Claims;
 using ClaimSystem.Controllers;
-using System.Security.Claims;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
+
+
 
 namespace MsTestProject
 {
+
     [TestClass]
-    public class HomeController : Controller
+    public class HomeControllerTests
     {
-        public IActionResult Index()
+        private HomeController _controller;
+        private Mock<ILogger<HomeController>> _loggerMock;
+
+        [TestInitialize]
+        public void Setup()
         {
-            return View();
+            _loggerMock = new Mock<ILogger<HomeController>>();
+            _controller = new HomeController(_loggerMock.Object);
         }
-    }
-    [TestClass]
-    public sealed class HomeControllerTests
-    {
-        private readonly ClaimSystem.Controllers.HomeController _controller;
 
         [TestMethod]
-        public void Index_ReturnsView()
+        public void Privacy_ReturnsView()
         {
             // Act
-            var result = _controller.Index() as ViewResult;
+            var result = _controller.Privacy();
 
             // Assert
             Assert.IsNotNull(result);
