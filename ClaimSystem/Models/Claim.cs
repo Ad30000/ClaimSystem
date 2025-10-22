@@ -9,7 +9,7 @@ public partial class Claim
 
     public string ClaimNumber { get; set; } = null!;
 
-    public DateTime LastUpdatedDate { get; set; }
+    public DateTime LastUpdatedDate { get; set; } 
 
     public int LecturerId { get; set; }
 
