@@ -3,7 +3,7 @@ using ClaimSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace CMCS.Controllers
+namespace ClaimSystem.Controllers
 {
     public class ClaimController : Controller
     {
@@ -33,50 +33,62 @@ namespace CMCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Claim claim, IFormFile supportingDoc)
         {
-            //if (ModelState.IsValid)
+            try
             {
-                try
+                // Generate claim number
+                claim.ClaimNumber = GenerateClaimNumber();
+                claim.DateSubmitted = DateTime.Now;
+                claim.LastUpdatedDate = DateTime.Now;
+                claim.Status = "Pending";
+                claim.LecturerId = 1; // Temporary - replace with actual logged-in lecturer ID
+
+                // Calculate total amount
+                claim.TotalAmount = claim.HoursWorked * claim.AmountPerHour;
+
+                // Handle file upload - FIXED VERSION
+                if (supportingDoc != null && supportingDoc.Length > 0)
                 {
-                    // Generate claim number
-                    claim.ClaimNumber = GenerateClaimNumber();
-                    claim.DateSubmitted = DateTime.Now;
-                    claim.LastUpdatedDate = DateTime.Now;
-                    claim.Status = "Pending";
+                    // Convert the uploaded file to byte array
+                    using var memoryStream = new MemoryStream();
+                    await supportingDoc.CopyToAsync(memoryStream);
 
-                    // For demo purposes, set a lecturer ID (you'll replace this with actual user logic)
-                    claim.LecturerId = 1; // Temporary - replace with actual logged-in lecturer ID
-
-                    // Calculate total amount
-                    claim.TotalAmount = claim.HoursWorked * claim.AmountPerHour;
-
-                    // Handle file upload
-                    if (supportingDoc != null && supportingDoc.Length > 0)
+                    var document = new SupportingDocument
                     {
-                        var document = new SupportingDocument
-                        {
-                            FileName = supportingDoc.FileName,
-                            ContentType = Path.GetExtension(supportingDoc.FileName),
-                            FileSize = supportingDoc.Length,
-                            FileUploadDate = DateTime.Now,
-                            Description = "Supporting document for claim"
-                        };
+                        FileName = supportingDoc.FileName,
+                        ContentType = supportingDoc.ContentType,
+                        FileContent = memoryStream.ToArray(),
+                        FileSize = supportingDoc.Length,
+                        FileUploadDate = DateTime.Now,
+                        Description = "Supporting document for claim",
+                        FilePath = $"uploads/{supportingDoc.FileName}" // Provide a FilePath value
+                    };
 
-                        // For prototype, store file path (in production, store actual file)
-                        document.FilePath = $"uploads/{document.FileName}";
-
-                        claim.SupportingDocuments = new List<SupportingDocument> { document };
-                    }
-
-                    _context.Claims.Add(claim);
-                    await _context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "Claim submitted successfully!";
-                    return RedirectToAction("Details", new { id = claim.ClaimId });
+                    claim.SupportingDocuments = new List<SupportingDocument> { document };
                 }
-                catch (Exception ex)
+                else
                 {
-                    ModelState.AddModelError("", $"Error submitting claim: {ex.Message}");
+                    var document = new SupportingDocument
+                    {
+                        FileName = "No file uploaded",
+                        ContentType = "text/plain",
+                        FileContent = new byte[0], // Empty byte array
+                        FileSize = 0,
+                        FileUploadDate = DateTime.Now,
+                        Description = "No supporting document provided",
+                        FilePath = "none"
+                    };
+                    claim.SupportingDocuments = new List<SupportingDocument> { document };
                 }
+
+                _context.Claims.Add(claim);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Claim submitted successfully!";
+                return RedirectToAction("Details", new { id = claim.ClaimId });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error submitting claim: {ex.Message}");
             }
 
             return View(claim);
@@ -105,5 +117,7 @@ namespace CMCS.Controllers
             var nextNumber = lastClaim == null ? 1 : int.Parse(lastClaim.ClaimNumber.Replace("CLM-", "")) + 1;
             return $"CLM-{nextNumber:D3}";
         }
+
+
     }
 }

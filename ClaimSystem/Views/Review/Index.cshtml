@@ -1,4 +1,4 @@
-﻿@{
+﻿@* @{
     ViewData["Title"] = "Review Claims";
     Layout = "_Layout";
 }
@@ -86,6 +86,78 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+ *@
+
+@model IEnumerable<ClaimSystem.Models.Claim>
+@{
+    ViewData["Title"] = "Review Claims";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-check-circle me-2"></i>Claims Review Dashboard</h2>
+            <span class="badge bg-info fs-6 px-3 py-2">@(TempData["UserRole"]?.ToString() ?? "Reviewer") View</span>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Pending Claims for Review</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No pending claims found for review.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Claim #</th>
+                                    <th>Lecturer</th>
+                                    <th>Date Submitted</th>
+                                    <th>Month</th>
+                                    <th>Hours</th>
+                                    <th>Rate (R)</th>
+                                    <th>Total (R)</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var claim in Model)
+                                {
+                                    <tr>
+                                        <td>@claim.ClaimNumber</td>
+                                        <td>@(claim.Lecturer?.Name ?? "N/A")</td>
+                                        <td>@claim.DateSubmitted.ToString("yyyy-MM-dd")</td>
+                                        <td>@claim.MonthClaim</td>
+                                        <td>@claim.HoursWorked</td>
+                                        <td>@claim.AmountPerHour.ToString("F2")</td>
+                                        <td>@claim.TotalAmount?.ToString("F2")</td>
+                                        <td>
+                                            <span class="badge bg-warning">@claim.Status</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="/Claim/Details/@claim.ClaimId" class="btn btn-outline-primary">Review</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
     </div>

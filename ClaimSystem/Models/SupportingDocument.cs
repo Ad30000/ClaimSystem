@@ -9,7 +9,7 @@ public partial class SupportingDocument
 
     public int ClaimId { get; set; }
 
-    public byte[] FileContent { get; set; } = null!;
+    public byte[] FileContent { get; set; } 
 
     public string FileName { get; set; } = null!;
 

@@ -24,6 +24,8 @@ public partial class ClaimDatabaseContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+   
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=lab7L95SR\\SQLEXPRESS;Initial Catalog=ClaimDatabase;Integrated Security=True;TrustServerCertificate=True");
@@ -82,6 +84,9 @@ public partial class ClaimDatabaseContext : DbContext
             entity.Property(e => e.ContentType)
                 .HasMaxLength(100)
                 .HasDefaultValue("application/octet-stream");
+            entity.Property(e => e.FileContent)
+                .IsRequired(false)
+              .HasColumnType("varbinary(max)");
             entity.Property(e => e.FileName).HasMaxLength(100);
             entity.Property(e => e.FileUploadDate)
                 .HasDefaultValueSql("(getdate())")

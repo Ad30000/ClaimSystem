@@ -62,7 +62,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="MonthClaim" class="form-label">Claim Period *</label>
+                                <label asp-for="MonthClaim" class="form-label">MonthClaim *</label>
                                 <input asp-for="MonthClaim" type="text" class="form-control" placeholder="e.g., February 2025">
                                 <span asp-validation-for="MonthClaim" class="text-danger"></span>
                             </div>
@@ -105,3 +105,21 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        // Auto-calculate total amount
+        function calculateTotal() {
+            const hours = parseFloat($('#HoursWorked').val()) || 0;
+            const rate = parseFloat($('#AmountPerHour').val()) || 0;
+            const total = hours * rate;
+            $('#totalAmount').val(total.toFixed(2));
+        }
+
+        $('#HoursWorked, #AmountPerHour').on('input', calculateTotal);
+        
+        // Initialize calculation on page load
+        $(document).ready(function() {
+            calculateTotal();
+        });
+    </script>
+}
