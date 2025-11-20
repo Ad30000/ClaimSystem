@@ -492,6 +492,7 @@ namespace ClaimSystem.Controllers
         }
 
         // Manage all users (Lecturers, Coordinators, Managers, HR)
+        // Manage all users (Lecturers, Coordinators, Managers, HR)
         public IActionResult ManageUsers()
         {
             EnsureRole("HR");
@@ -509,7 +510,10 @@ namespace ClaimSystem.Controllers
                     Name = u.Lecturer != null ? u.Lecturer.Name :
                            u.HR != null ? u.HR.Name : "N/A",
                     Department = u.Lecturer != null ? u.Lecturer.Department :
-                                u.HR != null ? u.HR.Department : "N/A"
+                                u.HR != null ? u.HR.Department : "N/A",
+                    // Add these for action links
+                    LecturerId = u.Lecturer != null ? u.Lecturer.LecturerId : (int?)null,
+                    HRId = u.HR != null ? u.HR.HRId : (int?)null
                 })
                 .ToList();
 
@@ -542,6 +546,134 @@ namespace ClaimSystem.Controllers
             }
 
             return RedirectToAction("ManageUsers");
+        }
+
+        // Edit User
+        [HttpGet]
+        public IActionResult EditUser(int id)
+        {
+            EnsureRole("HR");
+
+            var user = _context.Users
+                .Include(u => u.Lecturer)
+                .Include(u => u.HR)
+                .FirstOrDefault(u => u.UserId == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var model = new UserViewModel
+            {
+                Id = user.UserId, // Set the Id property
+                Name = user.Lecturer?.Name ?? user.HR?.Name ?? "",
+                Department = user.Lecturer?.Department ?? user.HR?.Department ?? "",
+                PhoneNumber = user.Lecturer?.PhoneNumber ?? user.HR?.PhoneNumber,
+                Address = user.Lecturer?.Address ?? user.HR?.Address,
+                Email = user.Email,
+                Role = user.Role
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUser(UserViewModel model)
+        {
+            EnsureRole("HR");
+
+            Console.WriteLine($"Model State IsValid: {ModelState.IsValid}");
+            Console.WriteLine($"Model ID: {model?.Id}");
+            Console.WriteLine($"Model Name: {model?.Name}");
+            Console.WriteLine($"Model Role: {model?.Role}");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"Model Error: {error.ErrorMessage}");
+                }
+
+                ViewBag.UserId = model?.Id;
+                return View(model);
+            }
+
+            try
+            {
+                var user = await _context.Users
+                    .Include(u => u.Lecturer)
+                    .Include(u => u.HR)
+                    .FirstOrDefaultAsync(u => u.UserId == model.Id);
+
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "User not found.";
+                    return RedirectToAction("ManageUsers");
+                }
+
+                // Update user email
+                user.Email = model.Email;
+                user.Username = model.Email;
+
+                // Update profile based on role
+                switch (user.Role.ToLower())
+                {
+                    case "lecturer":
+                    case "coordinator":
+                    case "manager":
+                        if (user.Lecturer != null)
+                        {
+                            user.Lecturer.Name = model.Name;
+                            user.Lecturer.Department = model.Department;
+                            user.Lecturer.PhoneNumber = model.PhoneNumber;
+                            user.Lecturer.Address = model.Address;
+                        }
+                        break;
+
+                    case "hr":
+                        if (user.HR != null)
+                        {
+                            user.HR.Name = model.Name;
+                            user.HR.Department = model.Department;
+                            user.HR.PhoneNumber = model.PhoneNumber;
+                            user.HR.Address = model.Address;
+                        }
+                        break;
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "User updated successfully!";
+                return RedirectToAction("ManageUsers");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                ModelState.AddModelError("", $"Error updating user: {ex.Message}");
+                ViewBag.UserId = model?.Id;
+                return View(model);
+            }
+        }
+
+        // User Details
+        public IActionResult UserDetails(int id)
+        {
+            EnsureRole("HR");
+
+            var user = _context.Users
+                .Include(u => u.Lecturer)
+                .Include(u => u.HR)
+                .Include(u => u.Lecturer.Claims)
+                .FirstOrDefault(u => u.UserId == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
         }
 
 

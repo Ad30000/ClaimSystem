@@ -1,0 +1,125 @@
+﻿@model ClaimSystem.Models.User
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user me-2"></i>User Details</h2>
+                <a href="@Url.Action("ManageUsers")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Users
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Account Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">User ID:</th>
+                                    <td>@Model.UserId</td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>@Model.Email</td>
+                                </tr>
+                                <tr>
+                                    <th>Role:</th>
+                                    <td>
+                                        <span class="badge @GetRoleBadgeClass(Model.Role)">@Model.Role</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td>
+                                        <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                                            @(Model.IsActive ? "Active" : "Inactive")
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Profile Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Name:</th>
+                                    <td>@(Model.Lecturer?.Name ?? Model.HR?.Name ?? "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Department:</th>
+                                    <td>@(Model.Lecturer?.Department ?? Model.HR?.Department ?? "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone:</th>
+                                    <td>@(Model.Lecturer?.PhoneNumber ?? Model.HR?.PhoneNumber ?? "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Address:</th>
+                                    <td>@(Model.Lecturer?.Address ?? Model.HR?.Address ?? "N/A")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Role == "Lecturer" && Model.Lecturer?.Claims?.Any() == true)
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Claims Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="60%">Total Claims:</th>
+                                <td><span class="badge bg-primary">@Model.Lecturer.Claims.Count</span></td>
+                            </tr>
+                            <tr>
+                                <th>Pending Claims:</th>
+                                <td><span class="badge bg-warning">@Model.Lecturer.Claims.Count(c => c.Status == "Pending")</span></td>
+                            </tr>
+                            <tr>
+                                <th>Approved Claims:</th>
+                                <td><span class="badge bg-success">@Model.Lecturer.Claims.Count(c => c.Status == "Approved")</span></td>
+                            </tr>
+                            <tr>
+                                <th>Rejected Claims:</th>
+                                <td><span class="badge bg-danger">@Model.Lecturer.Claims.Count(c => c.Status == "Rejected")</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetRoleBadgeClass(string role)
+    {
+        return role?.ToLower() switch
+        {
+            "hr" => "bg-danger",
+            "manager" => "bg-warning",
+            "coordinator" => "bg-info",
+            "lecturer" => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+}

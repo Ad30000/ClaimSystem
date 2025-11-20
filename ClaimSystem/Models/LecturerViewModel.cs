@@ -1,36 +1,37 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ClaimSystem.Models
+namespace ClaimSystem.Models;
+
+public class UserViewModel
 {
-    public class UserViewModel
-    {
-        [Required(ErrorMessage = "Full name is required")]
-        [Display(Name = "Full Name")]
-        public string Name { get; set; } = null!;
+    public int Id { get; set; }
 
-        [Required(ErrorMessage = "Department is required")]
-        public string Department { get; set; } = null!;
+    [Required(ErrorMessage = "Name is required")]
+    [Display(Name = "Full Name")]
+    public string Name { get; set; } = null!;
 
-        [Phone(ErrorMessage = "Please enter a valid phone number")]
-        [Display(Name = "Phone Number")]
-        public string? PhoneNumber { get; set; }
+    [Required(ErrorMessage = "Department is required")]
+    public string Department { get; set; } = null!;
 
-        public string? Address { get; set; }
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Invalid email address")]
+    public string Email { get; set; } = null!;
 
-        [Required(ErrorMessage = "Email address is required")]
-        [EmailAddress(ErrorMessage = "Please enter a valid email address")]
-        public string Email { get; set; } = null!;
+    [Phone(ErrorMessage = "Invalid phone number")]
+    [Display(Name = "Phone Number")]
+    public string? PhoneNumber { get; set; }
 
-        [Required(ErrorMessage = "Password is required")]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
-        [Display(Name = "Password")]
-        public string Password { get; set; } = null!;
+    public string? Address { get; set; }
 
-        [Required(ErrorMessage = "Role is required")]
-        [Display(Name = "User Role")]
-        public string Role { get; set; } = null!;
-    }
-    public class LecturerViewModel
+    [Required]
+    public string Role { get; set; } = null!;
+
+    // Password is only for creation, not for editing
+    // Remove validation attributes for edit scenarios
+    public string? Password { get; set; }
+}
+
+public class LecturerViewModel
     {
         public string Name { get; set; }
         public string Department { get; set; }
@@ -39,4 +40,3 @@ namespace ClaimSystem.Models
         public string Email { get; set; }
         public string Password { get; set; }
     }
-}

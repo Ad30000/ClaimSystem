@@ -6,6 +6,7 @@ namespace ClaimSystem.Controllers
    
     public class BaseController : Controller
     {
+        // Helper properties to access session data
         protected string CurrentUserRole => HttpContext.Session.GetString("UserRole") ?? string.Empty;
         protected int CurrentUserId => HttpContext.Session.GetInt32("UserId") ?? 0;
         protected string CurrentUserEmail => HttpContext.Session.GetString("UserEmail") ?? string.Empty;
