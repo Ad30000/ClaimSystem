@@ -1,5 +1,4 @@
-﻿
-@model ClaimSystem.Models.Claim
+﻿@model ClaimSystem.Models.Claim
 @{
     ViewData["Title"] = "Claim Details";
     Layout = "_Layout";
@@ -92,9 +91,20 @@
                 }
 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="/Home/Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                    @if (ViewBag.UserRole == "Lecturer")
+                    {
+                        <a href="/Home/Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                    }
+                    else if (ViewBag.UserRole == "Coordinator" || ViewBag.UserRole == "Manager")
+                    {
+                        <a href="/Review/Index" class="btn btn-secondary">Back to Review</a>
+                    }
+                    else
+                    {
+                        <a href="/Home/Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                    }
 
-                    @if (TempData["UserRole"]?.ToString() == "coordinator" || TempData["UserRole"]?.ToString() == "manager")
+                    @if (ViewBag.UserRole == "Coordinator" || ViewBag.UserRole == "Manager")
                     {
                         <form asp-controller="Review" asp-action="Approve" method="post" class="ms-2">
                             <input type="hidden" name="id" value="@Model.ClaimId" />
@@ -122,5 +132,4 @@
             _ => "bg-secondary"
         };
     }
-
 }
