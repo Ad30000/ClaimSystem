@@ -118,7 +118,7 @@ namespace ClaimSystem.Controllers
         {
             EnsureRole("Coordinator", "Manager");
 
-            // Check if user is logged in and has appropriate role
+            // Checks if user is logged in and has appropriate role
             var userRole = HttpContext.Session.GetString("UserRole");
             if (string.IsNullOrEmpty(userRole) || (userRole != "Coordinator" && userRole != "Manager"))
             {
@@ -154,13 +154,12 @@ namespace ClaimSystem.Controllers
             {
                 // Log the error and show a user-friendly message
                 TempData["ErrorMessage"] = "Error loading claims. Please try again.";
-                // In development, you might want to see the actual error:
-                // TempData["ErrorMessage"] = $"Error: {ex.Message}";
+                
                 return View(new List<Claim>());
             }
         }
 
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
@@ -279,7 +278,7 @@ namespace ClaimSystem.Controllers
             return RedirectToAction("Index");
         }
 
-
+        // GET: Review/ApprovalHistory/5
         public IActionResult ApprovalHistory(int id)
         {
             EnsureRole("Coordinator", "Manager");

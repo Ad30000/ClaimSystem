@@ -184,14 +184,5 @@ namespace ClaimSystem.Controllers
             return $"CLM-{nextNumber:D3}";
         }
 
-        // Remove this duplicate method as it's already inherited from BaseController
-        // private new void EnsureAuthenticated()
-        // {
-        //     var userRole = HttpContext.Session.GetString("UserRole");
-        //     if (string.IsNullOrEmpty(userRole))
-        //     {
-        //         RedirectToAction("Login", "Account");
-        //     }
-        // }
     }
 }

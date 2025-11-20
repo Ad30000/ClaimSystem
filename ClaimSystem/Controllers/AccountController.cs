@@ -18,38 +18,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public IActionResult Login(string email, string password, string role)
-        //{
-        //    if (string.IsNullOrEmpty(role))
-        //    {
-        //        ModelState.AddModelError("role", "Please select a role");
-        //        return View();
-        //    }
-
-        //    // For prototype purposes - in real application, validate against database
-        //    if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password))
-        //    {
-        //        // Store user info in session
-        //        HttpContext.Session.SetString("UserRole", role);
-        //        HttpContext.Session.SetString("UserEmail", email);
-        //        HttpContext.Session.SetInt32("UserId", 1); // Replace with actual user ID from database
-
-        //        // Redirect based on role
-        //        return role.ToLower() switch
-        //        {
-        //            "lecturer" => RedirectToAction("Dashboard", "Home"),
-        //            "coordinator" => RedirectToAction("Index", "Review"),
-        //            "manager" => RedirectToAction("Index", "Review"),
-        //            "hr" => RedirectToAction("Dashboard", "Hr"),
-        //            _ => RedirectToAction("Index", "Home")
-        //        };
-        //    }
-
-        //    ModelState.AddModelError("", "Invalid login attempt.");
-        //    return View();
-        //}
-
+        /*Adnan, Y. (2025)*/
         [HttpPost]
         public IActionResult Login(string email, string password, string role)
         {
@@ -84,7 +53,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
-        // Add this helper method for password verification
+        // Simple password verification 
         private bool VerifyPassword(string enteredPassword, string storedPasswordHash)
         {
             // For now - simple comparison (in real app, use proper hashing)
@@ -94,6 +63,8 @@ namespace ClaimSystem.Controllers
             // return BCrypt.Net.BCrypt.Verify(enteredPassword, storedPasswordHash);
         }
 
+        // Logout action
+
         public IActionResult Logout()
         {
             // Clear all session data
@@ -102,3 +73,5 @@ namespace ClaimSystem.Controllers
         }
     }
 }
+
+/* Adnan, Y. (2025). Session Management – Roles [PDF lecture slides]. CS405: Advanced Web Development. Emeris Durban North. Available at: https://advtechonline.sharepoint.com/:b:/r/sites/BCA1_VCKNDN/Shared%20Documents/PROG6212%20Group%201/Session%20Management_Guide.pdf?csf=1&web=1&e=g1uN5a (Accessed: 17 November 2025). */

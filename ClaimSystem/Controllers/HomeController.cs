@@ -82,6 +82,7 @@ namespace ClaimSystem.Controllers
             return View(approvedClaims);
         }
 
+        // GET: Home/AccessDenied
         public IActionResult AccessDenied(string message)
         {
             ViewBag.AccessDeniedMessage = message ?? "You do not have permission to access this page.";
@@ -96,6 +97,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
+        // Error handling
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

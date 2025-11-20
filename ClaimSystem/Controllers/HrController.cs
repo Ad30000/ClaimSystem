@@ -16,7 +16,7 @@ namespace ClaimSystem.Controllers
         }
 
         
-        // HR Dashboard with enhanced features
+        // HR Dashboard 
         public IActionResult Dashboard()
         {
             EnsureRole("HR");
@@ -95,7 +95,7 @@ namespace ClaimSystem.Controllers
                     {
                         Username = model.Email,
                         Email = model.Email,
-                        PasswordHash = model.Password, // Hash the password
+                        PasswordHash = model.Password, 
                         Role = "Lecturer",
                         IsActive = true,
                     };
@@ -122,11 +122,11 @@ namespace ClaimSystem.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", $"Error adding lecturer: {ex.Message}");
-                    // Log the exception here
+                    
                 }
             }
 
-            // If we got this far, something failed; redisplay form
+            
             return View(model);
         }
 
@@ -172,7 +172,7 @@ namespace ClaimSystem.Controllers
                     return RedirectToAction("ManageLecturers");
                 }
 
-                // Update properties
+                // Update lecturer details
                 existingLecturer.Name = Name;
                 existingLecturer.Department = Department;
                 existingLecturer.PhoneNumber = PhoneNumber;
@@ -243,7 +243,7 @@ namespace ClaimSystem.Controllers
             return View(claims);
         }
 
-        // Export to Excel (Basic implementation)
+        // Export to Excel 
         public IActionResult ExportToExcel(string statusFilter, string lecturerFilter, DateTime? startDate, DateTime? endDate)
         {
             EnsureRole("HR");
@@ -279,7 +279,7 @@ namespace ClaimSystem.Controllers
 
             var claims = claimsQuery.OrderByDescending(c => c.DateSubmitted).ToList();
 
-            // Generate simple CSV (for Excel)
+            // Generate simple CSV 
             var csv = "Claim Number, Lecturer, Date Submitted, Month, Hours Worked, Hourly Rate, Total Amount, Status\n";
             foreach (var claim in claims)
             {
@@ -331,6 +331,7 @@ namespace ClaimSystem.Controllers
             }
         }
 
+        // Activate/Deactivate lecturer accounts
         [HttpPost]
         public async Task<IActionResult> ToggleLecturerStatus(int id)
         {
@@ -386,17 +387,5 @@ namespace ClaimSystem.Controllers
 
             return View(lecturer);
         }
-
-        //private string HashPassword(string password)
-        //{
-            
-
-        //    // Implement proper password hashing here
-        //    // Consider using BCrypt.Net, ASP.NET Core Identity, or similar
-        //    using var sha256 = System.Security.Cryptography.SHA256.Create();
-        //    var bytes = System.Text.Encoding.UTF8.GetBytes(password);
-        //    var hash = sha256.ComputeHash(bytes);
-        //    return Convert.ToBase64String(hash);
-        //}
     }
 }
