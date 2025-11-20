@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClaimSystem.Controllers
 {
-    public class ClaimController : Controller
+    public class ClaimController : BaseController
     {
         private readonly ClaimDatabaseContext _context;
 
@@ -16,6 +16,15 @@ namespace ClaimSystem.Controllers
 
         public IActionResult Index()
         {
+            EnsureAuthenticated();
+
+            // Check if user is logged in
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (string.IsNullOrEmpty(userRole))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             var claims = _context.Claims
                 .Include(c => c.Lecturer)
                 .ThenInclude(l => l.User)
@@ -26,6 +35,24 @@ namespace ClaimSystem.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            EnsureRole("Lecturer");
+
+            // Check if user is logged in
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (string.IsNullOrEmpty(userRole))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Get HR-set hourly rate and pass it to the view
+            var hrDefaultRate = _context.HR
+                .OrderBy(h => h.HRId)
+                .Select(h => h.DefaultHourlyRate)
+                .FirstOrDefault();
+
+            ViewData["HourlyRate"] = hrDefaultRate.ToString("F2");
+            ViewBag.HourlyRate = hrDefaultRate.ToString("F2"); // Alternative approach
+
             return View();
         }
 
@@ -33,22 +60,38 @@ namespace ClaimSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Claim claim, IFormFile supportingDoc)
         {
+            EnsureRole("Lecturer");
+
+            // Check if user is logged in
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (string.IsNullOrEmpty(userRole))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             try
             {
+                // Get HR-set hourly rate instead of user input
+                var hrDefaultRate = _context.HR
+                    .OrderBy(h => h.HRId)
+                    .Select(h => h.DefaultHourlyRate)
+                    .FirstOrDefault();
+
+                claim.AmountPerHour = hrDefaultRate > 0 ? hrDefaultRate : claim.AmountPerHour;
+
                 // Generate claim number
                 claim.ClaimNumber = GenerateClaimNumber();
                 claim.DateSubmitted = DateTime.Now;
                 claim.LastUpdatedDate = DateTime.Now;
                 claim.Status = "Pending";
-                claim.LecturerId = 1; // Temporary - replace with actual logged-in lecturer ID
+                claim.LecturerId = 1; // In real app, get from session: HttpContext.Session.GetInt32("UserId")
 
                 // Calculate total amount
                 claim.TotalAmount = claim.HoursWorked * claim.AmountPerHour;
 
-                // Handle file upload - FIXED VERSION
+                // Handle file upload
                 if (supportingDoc != null && supportingDoc.Length > 0)
                 {
-                    // Convert the uploaded file to byte array
                     using var memoryStream = new MemoryStream();
                     await supportingDoc.CopyToAsync(memoryStream);
 
@@ -60,7 +103,7 @@ namespace ClaimSystem.Controllers
                         FileSize = supportingDoc.Length,
                         FileUploadDate = DateTime.Now,
                         Description = "Supporting document for claim",
-                        FilePath = $"uploads/{supportingDoc.FileName}" // Provide a FilePath value
+                        FilePath = $"uploads/{supportingDoc.FileName}"
                     };
 
                     claim.SupportingDocuments = new List<SupportingDocument> { document };
@@ -71,7 +114,7 @@ namespace ClaimSystem.Controllers
                     {
                         FileName = "No file uploaded",
                         ContentType = "text/plain",
-                        FileContent = new byte[0], // Empty byte array
+                        FileContent = new byte[0],
                         FileSize = 0,
                         FileUploadDate = DateTime.Now,
                         Description = "No supporting document provided",
@@ -97,6 +140,15 @@ namespace ClaimSystem.Controllers
         [HttpGet]
         public IActionResult Details(int id)
         {
+            EnsureAuthenticated();
+
+            // Check if user is logged in
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (string.IsNullOrEmpty(userRole))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             var claim = _context.Claims
                 .Include(c => c.Lecturer)
                 .ThenInclude(l => l.User)
@@ -108,6 +160,9 @@ namespace ClaimSystem.Controllers
                 return NotFound();
             }
 
+            // Pass user role to view for conditional buttons
+            ViewBag.UserRole = userRole;
+
             return View(claim);
         }
 
@@ -117,7 +172,14 @@ namespace ClaimSystem.Controllers
             var nextNumber = lastClaim == null ? 1 : int.Parse(lastClaim.ClaimNumber.Replace("CLM-", "")) + 1;
             return $"CLM-{nextNumber:D3}";
         }
-
-
+        // Add this method to the ClaimController class to fix CS0103
+        private new void EnsureAuthenticated()
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (string.IsNullOrEmpty(userRole))
+            {
+                RedirectToAction("Login", "Account");
+            }
+        }
     }
 }

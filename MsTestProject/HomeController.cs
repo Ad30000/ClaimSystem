@@ -16,12 +16,12 @@ namespace MsTestProject
         private HomeController _controller;
         private Mock<ILogger<HomeController>> _loggerMock;
 
-        [TestInitialize]
-        public void Setup()
-        {
-            _loggerMock = new Mock<ILogger<HomeController>>();
-            _controller = new HomeController(_loggerMock.Object);
-        }
+        //[TestInitialize]
+        //public void Setup()
+        //{
+        //    _loggerMock = new Mock<ILogger<HomeController>>();
+        //    _controller = new HomeController(_loggerMock.Object);
+        //}
 
         [TestMethod]
         public void Privacy_ReturnsView()

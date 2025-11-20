@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClaimSystem.Migrations
 {
     [DbContext(typeof(ClaimDatabaseContext))]
-    [Migration("20251021204752_AddClaimNumberAndLastUpdatedDateToClaim")]
-    partial class AddClaimNumberAndLastUpdatedDateToClaim
+    [Migration("20251117212753_FixClaimApprovalRelationships")]
+    partial class FixClaimApprovalRelationships
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,8 @@ namespace ClaimSystem.Migrations
 
                     b.Property<string>("ClaimNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("DateSubmitted")
                         .ValueGeneratedOnAdd()
@@ -81,6 +82,105 @@ namespace ClaimSystem.Migrations
                     b.HasIndex("LecturerId");
 
                     b.ToTable("Claim", (string)null);
+                });
+
+            modelBuilder.Entity("ClaimSystem.Models.ClaimApproval", b =>
+                {
+                    b.Property<int>("ClaimApprovalId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClaimApprovalId"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("ApprovalDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<int>("ClaimId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClaimId1")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClaimApprovalId");
+
+                    b.HasIndex("ClaimId");
+
+                    b.HasIndex("ClaimId1");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ClaimApproval", (string)null);
+                });
+
+            modelBuilder.Entity("ClaimSystem.Models.HR", b =>
+                {
+                    b.Property<int>("HRId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HRId"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HRId")
+                        .HasName("PK__HR__1778F401A1B2C1D2");
+
+                    b.HasIndex(new[] { "UserId" }, "UQ__HR__1788CC4D8A12F8C7")
+                        .IsUnique();
+
+                    b.ToTable("HR", (string)null);
                 });
 
             modelBuilder.Entity("ClaimSystem.Models.Lecturer", b =>
@@ -139,14 +239,20 @@ namespace ClaimSystem.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasDefaultValue("application/octet-stream");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte[]>("FileContent")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
@@ -221,6 +327,43 @@ namespace ClaimSystem.Migrations
                     b.Navigation("Lecturer");
                 });
 
+            modelBuilder.Entity("ClaimSystem.Models.ClaimApproval", b =>
+                {
+                    b.HasOne("ClaimSystem.Models.Claim", "Claim")
+                        .WithMany()
+                        .HasForeignKey("ClaimId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_ClaimApproval_Claim");
+
+                    b.HasOne("ClaimSystem.Models.Claim", null)
+                        .WithMany("ClaimApprovals")
+                        .HasForeignKey("ClaimId1");
+
+                    b.HasOne("ClaimSystem.Models.User", "Approver")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_ClaimApproval_User");
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Claim");
+                });
+
+            modelBuilder.Entity("ClaimSystem.Models.HR", b =>
+                {
+                    b.HasOne("ClaimSystem.Models.User", "User")
+                        .WithOne("HR")
+                        .HasForeignKey("ClaimSystem.Models.HR", "UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_HR_User");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ClaimSystem.Models.Lecturer", b =>
                 {
                     b.HasOne("ClaimSystem.Models.User", "User")
@@ -247,6 +390,8 @@ namespace ClaimSystem.Migrations
 
             modelBuilder.Entity("ClaimSystem.Models.Claim", b =>
                 {
+                    b.Navigation("ClaimApprovals");
+
                     b.Navigation("SupportingDocuments");
                 });
 
@@ -257,6 +402,8 @@ namespace ClaimSystem.Migrations
 
             modelBuilder.Entity("ClaimSystem.Models.User", b =>
                 {
+                    b.Navigation("HR");
+
                     b.Navigation("Lecturer");
                 });
 #pragma warning restore 612, 618

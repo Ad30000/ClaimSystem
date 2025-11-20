@@ -31,15 +31,16 @@ namespace ClaimSystem.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClaimId"));
 
                     b.Property<string>("AdditionalNotes")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("AmountPerHour")
                         .HasColumnType("decimal(10, 2)");
 
                     b.Property<string>("ClaimNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("DateSubmitted")
                         .ValueGeneratedOnAdd()
@@ -50,7 +51,9 @@ namespace ClaimSystem.Migrations
                         .HasColumnType("decimal(10, 2)");
 
                     b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
 
                     b.Property<int>("LecturerId")
                         .HasColumnType("int");
@@ -70,14 +73,111 @@ namespace ClaimSystem.Migrations
                     b.Property<decimal?>("TotalAmount")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("decimal(21, 4)")
-                        .HasComputedColumnSql("([HoursWorked]*[AmountPerHour])", true);
+                        .HasComputedColumnSql("([HoursWorked]*[AmountPerHour])", false);
 
-                    b.HasKey("ClaimId")
-                        .HasName("PK__Claim__EF2E139BC542D98F");
+                    b.HasKey("ClaimId");
 
                     b.HasIndex("LecturerId");
 
                     b.ToTable("Claim", (string)null);
+                });
+
+            modelBuilder.Entity("ClaimSystem.Models.ClaimApproval", b =>
+                {
+                    b.Property<int>("ClaimApprovalId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClaimApprovalId"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("ApprovalDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<int>("ClaimId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClaimApprovalId");
+
+                    b.HasIndex("ClaimId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ClaimApproval", (string)null);
+                });
+
+            modelBuilder.Entity("ClaimSystem.Models.HR", b =>
+                {
+                    b.Property<int>("HRId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HRId"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<decimal>("DefaultHourlyRate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(10, 2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HRId");
+
+                    b.HasIndex(new[] { "UserId" }, "UQ_HR_UserId")
+                        .IsUnique();
+
+                    b.ToTable("HR", (string)null);
                 });
 
             modelBuilder.Entity("ClaimSystem.Models.Lecturer", b =>
@@ -109,10 +209,9 @@ namespace ClaimSystem.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("LecturerId")
-                        .HasName("PK__Lecturer__5A78B93D23C3DCC3");
+                    b.HasKey("LecturerId");
 
-                    b.HasIndex(new[] { "UserId" }, "UQ__Lecturer__1788CC4DC72B8E1D")
+                    b.HasIndex(new[] { "UserId" }, "UQ_Lecturer_UserId")
                         .IsUnique();
 
                     b.ToTable("Lecturer", (string)null);
@@ -136,14 +235,23 @@ namespace ClaimSystem.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasDefaultValue("application/octet-stream");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<byte[]>("FileContent")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
@@ -153,8 +261,7 @@ namespace ClaimSystem.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
 
-                    b.HasKey("SupportingDocumentId")
-                        .HasName("PK__Supporti__9DD3C21C647019FF");
+                    b.HasKey("SupportingDocumentId");
 
                     b.HasIndex("ClaimId");
 
@@ -194,13 +301,12 @@ namespace ClaimSystem.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("UserId")
-                        .HasName("PK__User__1788CC4CB3B45EFA");
+                    b.HasKey("UserId");
 
-                    b.HasIndex(new[] { "Username" }, "UQ__User__536C85E47BB91CFB")
+                    b.HasIndex(new[] { "Email" }, "UQ_User_Email")
                         .IsUnique();
 
-                    b.HasIndex(new[] { "Email" }, "UQ__User__A9D10534F9976CCD")
+                    b.HasIndex(new[] { "Username" }, "UQ_User_Username")
                         .IsUnique();
 
                     b.ToTable("User", (string)null);
@@ -211,11 +317,43 @@ namespace ClaimSystem.Migrations
                     b.HasOne("ClaimSystem.Models.Lecturer", "Lecturer")
                         .WithMany("Claims")
                         .HasForeignKey("LecturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Claim_Lecturer");
 
                     b.Navigation("Lecturer");
+                });
+
+            modelBuilder.Entity("ClaimSystem.Models.ClaimApproval", b =>
+                {
+                    b.HasOne("ClaimSystem.Models.Claim", "Claim")
+                        .WithMany("ClaimApprovals")
+                        .HasForeignKey("ClaimId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ClaimApproval_Claim");
+
+                    b.HasOne("ClaimSystem.Models.User", "Approver")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ClaimApproval_User");
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Claim");
+                });
+
+            modelBuilder.Entity("ClaimSystem.Models.HR", b =>
+                {
+                    b.HasOne("ClaimSystem.Models.User", "User")
+                        .WithOne("HR")
+                        .HasForeignKey("ClaimSystem.Models.HR", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HR_User");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ClaimSystem.Models.Lecturer", b =>
@@ -244,6 +382,8 @@ namespace ClaimSystem.Migrations
 
             modelBuilder.Entity("ClaimSystem.Models.Claim", b =>
                 {
+                    b.Navigation("ClaimApprovals");
+
                     b.Navigation("SupportingDocuments");
                 });
 
@@ -254,6 +394,8 @@ namespace ClaimSystem.Migrations
 
             modelBuilder.Entity("ClaimSystem.Models.User", b =>
                 {
+                    b.Navigation("HR");
+
                     b.Navigation("Lecturer");
                 });
 #pragma warning restore 612, 618

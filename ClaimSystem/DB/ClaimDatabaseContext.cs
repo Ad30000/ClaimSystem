@@ -24,7 +24,10 @@ public partial class ClaimDatabaseContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-   
+    public virtual DbSet<ClaimApproval> ClaimApprovals { get; set; }
+
+    public virtual DbSet<HR> HR { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -34,11 +37,11 @@ public partial class ClaimDatabaseContext : DbContext
     {
         modelBuilder.Entity<Claim>(entity =>
         {
-            entity.HasKey(e => e.ClaimId).HasName("PK__Claim__EF2E139BC542D98F");
+            entity.HasKey(e => e.ClaimId);
 
             entity.ToTable("Claim");
 
-            entity.Property(e => e.AdditionalNotes).HasMaxLength(255);
+            entity.Property(e => e.AdditionalNotes).HasMaxLength(500);
             entity.Property(e => e.AmountPerHour).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.DateSubmitted)
                 .HasDefaultValueSql("(getdate())")
@@ -49,69 +52,131 @@ public partial class ClaimDatabaseContext : DbContext
                 .HasMaxLength(30)
                 .HasDefaultValue("Pending");
             entity.Property(e => e.TotalAmount)
-                .HasComputedColumnSql("([HoursWorked]*[AmountPerHour])", true)
+                .HasComputedColumnSql("([HoursWorked]*[AmountPerHour])", false)
                 .HasColumnType("decimal(21, 4)");
+            entity.Property(e => e.ClaimNumber).HasMaxLength(20);
+            entity.Property(e => e.LastUpdatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
 
-            entity.HasOne(d => d.Lecturer).WithMany(p => p.Claims)
+            entity.HasOne(d => d.Lecturer)
+                .WithMany(p => p.Claims)
                 .HasForeignKey(d => d.LecturerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Claim_Lecturer");
         });
 
         modelBuilder.Entity<Lecturer>(entity =>
         {
-            entity.HasKey(e => e.LecturerId).HasName("PK__Lecturer__5A78B93D23C3DCC3");
+            entity.HasKey(e => e.LecturerId);
 
             entity.ToTable("Lecturer");
 
-            entity.HasIndex(e => e.UserId, "UQ__Lecturer__1788CC4DC72B8E1D").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ_Lecturer_UserId").IsUnique();
 
             entity.Property(e => e.Address).HasMaxLength(200);
             entity.Property(e => e.Department).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(30);
 
-            entity.HasOne(d => d.User).WithOne(p => p.Lecturer)
+            entity.HasOne(d => d.User)
+                .WithOne(p => p.Lecturer)
                 .HasForeignKey<Lecturer>(d => d.UserId)
                 .HasConstraintName("FK_Lecturer_User");
         });
 
         modelBuilder.Entity<SupportingDocument>(entity =>
         {
-            entity.HasKey(e => e.SupportingDocumentId).HasName("PK__Supporti__9DD3C21C647019FF");
+            entity.HasKey(e => e.SupportingDocumentId);
 
             entity.ToTable("SupportingDocument");
 
             entity.Property(e => e.ContentType)
                 .HasMaxLength(100)
                 .HasDefaultValue("application/octet-stream");
-            entity.Property(e => e.FileContent)
-                .IsRequired(false)
-              .HasColumnType("varbinary(max)");
-            entity.Property(e => e.FileName).HasMaxLength(100);
+            entity.Property(e => e.FileContent).HasColumnType("varbinary(max)");
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FileSize).HasColumnType("bigint");
             entity.Property(e => e.FileUploadDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.Description).HasMaxLength(500);
 
-            entity.HasOne(d => d.Claim).WithMany(p => p.SupportingDocuments)
+            entity.HasOne(d => d.Claim)
+                .WithMany(p => p.SupportingDocuments)
                 .HasForeignKey(d => d.ClaimId)
                 .HasConstraintName("FK_SupportingDocument_Claim");
         });
 
         modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+
+                entity.ToTable("User");
+
+                entity.HasIndex(e => e.Username, "UQ_User_Username").IsUnique();
+                entity.HasIndex(e => e.Email, "UQ_User_Email").IsUnique();
+
+                entity.Property(e => e.Email).HasMaxLength(255);
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.Property(e => e.PasswordHash).HasMaxLength(255);
+                entity.Property(e => e.Role).HasMaxLength(100);
+                entity.Property(e => e.Username).HasMaxLength(50);
+            });
+
+
+
+        modelBuilder.Entity<ClaimApproval>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4CB3B45EFA");
+            entity.HasKey(e => e.ClaimApprovalId);
 
-            entity.ToTable("User");
+            entity.ToTable("ClaimApproval");
 
-            entity.HasIndex(e => e.Username, "UQ__User__536C85E47BB91CFB").IsUnique();
+            entity.Property(e => e.ApprovalDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Role).HasMaxLength(30);
+            entity.Property(e => e.Action).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(30);
+            entity.Property(e => e.Comments).HasMaxLength(500);
 
-            entity.HasIndex(e => e.Email, "UQ__User__A9D10534F9976CCD").IsUnique();
+            entity.HasOne(d => d.Claim)
+                .WithMany(p => p.ClaimApprovals)
+                .HasForeignKey(d => d.ClaimId)
+                .HasConstraintName("FK_ClaimApproval_Claim");
 
-            entity.Property(e => e.Email).HasMaxLength(255);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.PasswordHash).HasMaxLength(255);
-            entity.Property(e => e.Role).HasMaxLength(100);
-            entity.Property(e => e.Username).HasMaxLength(50);
+            entity.HasOne(d => d.Approver)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_ClaimApproval_User");
+        });
+
+        modelBuilder.Entity<HR>(entity =>
+        {
+            entity.HasKey(e => e.HRId);
+
+            entity.ToTable("HR");
+
+            entity.HasIndex(e => e.UserId, "UQ_HR_UserId").IsUnique();
+
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Department).HasMaxLength(100);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+            entity.Property(e => e.Address).HasMaxLength(200);
+            entity.Property(e => e.DateCreated)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            // ADD THIS FOR THE NEW PROPERTY
+            entity.Property(e => e.DefaultHourlyRate)
+                .HasColumnType("decimal(10, 2)")
+                .HasDefaultValue(0);
+
+            entity.HasOne(d => d.User)
+                .WithOne(p => p.HR)
+                .HasForeignKey<HR>(d => d.UserId)
+                .HasConstraintName("FK_HR_User");
         });
 
         OnModelCreatingPartial(modelBuilder);

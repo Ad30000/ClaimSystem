@@ -43,14 +43,14 @@
                                 <span asp-validation-for="HoursWorked" class="text-danger"></span>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="AmountPerHour" class="form-label">Hourly Rate (R) *</label>
-                                <input asp-for="AmountPerHour" type="number" class="form-control" placeholder="Enter hourly rate" min="0.01" step="0.01">
-                                <span asp-validation-for="AmountPerHour" class="text-danger"></span>
+                                <label class="form-label">Hourly Rate (R)</label>
+                                <input type="text" class="form-control" value="@(ViewData["HourlyRate"] ?? "0.00")" readonly>
+                                <small class="form-text text-muted">Set by HR department</small>
                             </div>
                         </div>
-                    </div>
 
                     <div class="row">
                         <div class="col-md-6">
@@ -108,9 +108,9 @@
 @section Scripts {
     <script>
         // Auto-calculate total amount
-        function calculateTotal() {
+            function calculateTotal() {
             const hours = parseFloat($('#HoursWorked').val()) || 0;
-            const rate = parseFloat($('#AmountPerHour').val()) || 0;
+            const rate = parseFloat('@(ViewData["HourlyRate"] ?? "0")') || 0; // Use the server-side value
             const total = hours * rate;
             $('#totalAmount').val(total.toFixed(2));
         }

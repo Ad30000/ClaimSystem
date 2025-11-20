@@ -1,0 +1,154 @@
+﻿@using System.Linq;
+@using ClaimSystem.Models
+@using Microsoft.AspNetCore.Mvc.Rendering;
+@using System.Globalization;
+
+
+@model ClaimSystem.Models.Lecturer
+@{
+    ViewData["Title"] = "Lecturer Details";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user me-2"></i>Lecturer Details</h2>
+                <a href="@Url.Action("ManageLecturers")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Lecturer ID:</th>
+                                    <td>@Model.LecturerId</td>
+                                </tr>
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>@Model.Name</td>
+                                </tr>
+                                <tr>
+                                    <th>Department:</th>
+                                    <td>@Model.Department</td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>@Model.User?.Email</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone:</th>
+                                    <td>@(Model.PhoneNumber ?? "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Address:</th>
+                                    <td>@(Model.Address ?? "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td>
+                                        <span class="badge @(Model.User?.IsActive == true ? "bg-success" : "bg-danger")">
+                                            @(Model.User?.IsActive == true ? "Active" : "Inactive")
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Claims Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="60%">Total Claims:</th>
+                                    <td><span class="badge bg-primary">@Model.Claims.Count</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Pending Claims:</th>
+                                    <td><span class="badge bg-warning">@Model.Claims.Count(c => c.Status == "Pending")</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Approved Claims:</th>
+                                    <td><span class="badge bg-success">@Model.Claims.Count(c => c.Status == "Approved")</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Rejected Claims:</th>
+                                    <td><span class="badge bg-danger">@Model.Claims.Count(c => c.Status == "Rejected")</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Claims.Any())
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Recent Claims</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Claim Number</th>
+                                        <th>Date Submitted</th>
+                                        <th>Month</th>
+                                        <th>Hours</th>
+                                        <th>Total Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var claim in Model.Claims.OrderByDescending(c => c.DateSubmitted).Take(5))
+                                    {
+                                        <tr>
+                                            <td>@claim.ClaimNumber</td>
+                                            <td>@claim.DateSubmitted.ToString("yyyy-MM-dd")</td>
+                                            <td>@claim.MonthClaim</td>
+                                            <td>@claim.HoursWorked</td>
+                                            @* <td>R @claim.TotalAmount.ToString("F2")</td> *@
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(claim.Status)">
+                                                    @claim.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Approved" => "bg-success",
+            "Pending" => "bg-warning",
+            "Rejected" => "bg-danger",
+            "Coordinator Approved" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}

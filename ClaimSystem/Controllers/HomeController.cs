@@ -1,76 +1,3 @@
-//using System.Diagnostics;
-//using ClaimSystem.DB;
-//using ClaimSystem.Models;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-
-//namespace ClaimSystem.Controllers
-//{
-//    public class HomeController : Controller
-//    {
-//        private readonly ILogger<HomeController> _logger;
-//        private readonly ClaimDatabaseContext _context;
-
-//        public HomeController(ILogger<HomeController> logger, ClaimDatabaseContext context)
-//        {
-//            _logger = logger;
-//            _context = context;
-//        }
-
-//        public IActionResult Index()
-//        {
-//            return View();
-//        }
-
-//        public IActionResult Dashboard()
-//        {
-//            var userRole = TempData["UserRole"]?.ToString();
-//            var userEmail = TempData["UserEmail"]?.ToString();
-
-//            // Store these back in TempData for the view
-//            TempData["UserRole"] = userRole;
-//            TempData["UserEmail"] = userEmail;
-
-//            if (userRole == "HR")
-//                return RedirectToAction("HrDashboard");
-
-//            // Get claims for the dashboard
-//            var claims = _context.Claims
-//                .Include(c => c.Lecturer)
-//                .ThenInclude(l => l.User)
-//                .ToList();
-
-//            return View(claims);
-//        }
-
-//        public IActionResult HrDashboard()
-//        {
-//            ViewData["Title"] = "HR Dashboard";
-
-//            var approvedClaims = _context.Claims
-//                .Include(c => c.Lecturer)
-//                .ThenInclude(l => l.User)
-//                .Where(c => c.Status == "Approved")
-//                .ToList();
-
-//            return View(approvedClaims);
-//        }
-
-//        public IActionResult Privacy()
-//        {
-//            return View();
-//        }
-
-//        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-//        public IActionResult Error()
-//        {
-//            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-//        }
-//    }
-
-//}
-
-
 using System.Diagnostics;
 using ClaimSystem.DB;
 using ClaimSystem.Models;
@@ -79,12 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClaimSystem.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ClaimDatabaseContext _context;
-
-        //public ILogger<HomeController> Object { get; }
 
         public HomeController(ILogger<HomeController> logger, ClaimDatabaseContext context)
         {
@@ -92,27 +17,32 @@ namespace ClaimSystem.Controllers
             _context = context;
         }
 
-        //public HomeController(ILogger<HomeController> @object)
-        //{
-        //    Object = @object;
-        //}
-
         public IActionResult Index()
         {
             return View();
         }
 
+        // GET: Home/Dashboard
         public IActionResult Dashboard()
         {
-            var userRole = TempData["UserRole"]?.ToString();
-            var userEmail = TempData["UserEmail"]?.ToString();
+            EnsureAuthenticated();
 
-            // Store these back in TempData for the view
-            TempData["UserRole"] = userRole;
-            TempData["UserEmail"] = userEmail;
+            // Get user info from session
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+
+            // Check if user is logged in
+            if (string.IsNullOrEmpty(userRole))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Store in ViewBag for the view
+            ViewBag.UserRole = userRole;
+            ViewBag.UserEmail = userEmail;
 
             if (userRole == "HR")
-                return RedirectToAction("HrDashboard");
+                return RedirectToAction("Dashboard", "Hr");
 
             // Get actual claims from database
             var claims = _context.Claims
@@ -125,11 +55,23 @@ namespace ClaimSystem.Controllers
             return View(claims);
         }
 
+        // GET: Home/HrDashboard
         public IActionResult HrDashboard()
         {
-            ViewData["Title"] = "HR Dashboard";
+            EnsureRole("HR");
 
-            // Get actual approved claims from database
+            // Check if user is HR
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole != "HR")
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            ViewData["Title"] = "HR Dashboard";
+            ViewBag.UserRole = userRole;
+            ViewBag.UserEmail = HttpContext.Session.GetString("UserEmail");
+
             var approvedClaims = _context.Claims
                 .Include(c => c.Lecturer)
                 .ThenInclude(l => l.User)
@@ -138,6 +80,15 @@ namespace ClaimSystem.Controllers
                 .ToList();
 
             return View(approvedClaims);
+        }
+
+        public IActionResult AccessDenied(string message)
+        {
+            ViewBag.AccessDeniedMessage = message ?? "You do not have permission to access this page.";
+            ViewBag.UserRole = HttpContext.Session.GetString("UserRole");
+            ViewBag.AttemptedUrl = HttpContext.Request.Query["returnUrl"];
+
+            return View();
         }
 
         public IActionResult Privacy()

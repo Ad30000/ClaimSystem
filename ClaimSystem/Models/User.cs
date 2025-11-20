@@ -18,4 +18,6 @@ public partial class User
     public bool IsActive { get; set; }
 
     public virtual Lecturer? Lecturer { get; set; }
+
+    public virtual HR? HR { get; set; }
 }

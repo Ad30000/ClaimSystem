@@ -1,0 +1,163 @@
+﻿@model IEnumerable<ClaimSystem.Models.Claim>
+@{
+    ViewData["Title"] = "Generate Reports";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-bar me-2"></i>Generate Reports</h2>
+                <div>
+                    <a href="@Url.Action("ExportToExcel", new { 
+                        statusFilter = ViewBag.StatusFilter, 
+                        lecturerFilter = ViewBag.LecturerFilter,
+                        startDate = ViewBag.StartDate,
+                        endDate = ViewBag.EndDate
+                    })" class="btn btn-success">
+                        <i class="fas fa-file-excel me-2"></i>Export to Excel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Report Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" asp-action="GenerateReports">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="statusFilter" class="form-label">Status</label>
+                                    <select class="form-select" id="statusFilter" name="statusFilter">
+                                        <option value="">All Statuses</option>
+                                        <option value="Pending" selected="@(ViewBag.StatusFilter == "Pending")">Pending</option>
+                                        <option value="Coordinator Approved" selected="@(ViewBag.StatusFilter == "Coordinator Approved")">Coordinator Approved</option>
+                                        <option value="Approved" selected="@(ViewBag.StatusFilter == "Approved")">Approved</option>
+                                        <option value="Rejected" selected="@(ViewBag.StatusFilter == "Rejected")">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="lecturerFilter" class="form-label">Lecturer Name</label>
+                                    <input type="text" class="form-control" id="lecturerFilter" name="lecturerFilter" 
+                                           value="@ViewBag.LecturerFilter" placeholder="Filter by lecturer name">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="startDate" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" 
+                                           value="@ViewBag.StartDate">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="endDate" class="form-label">End Date</label>
+                                    <input type="date" class="form-control" id="endDate" name="endDate" 
+                                           value="@ViewBag.EndDate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("GenerateReports")" class="btn btn-secondary me-2">Clear Filters</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Apply Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Report Results</h5>
+                    <span class="badge bg-info">@Model.Count() records found</span>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No claims found matching the selected filters.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Claim #</th>
+                                        <th>Lecturer</th>
+                                        <th>Date Submitted</th>
+                                        <th>Month</th>
+                                        <th>Hours</th>
+                                        <th>Rate (R)</th>
+                                        <th>Total (R)</th>
+                                        <th>Status</th>
+                                        <th>Approval History</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var claim in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@claim.ClaimNumber</strong>
+                                            </td>
+                                            <td>@claim.Lecturer?.Name</td>
+                                            <td>@claim.DateSubmitted.ToString("yyyy-MM-dd")</td>
+                                            <td>@claim.MonthClaim</td>
+                                            <td>@claim.HoursWorked.ToString("F1")</td>
+                                            <td>@claim.AmountPerHour.ToString("F2")</td>
+                                            <td class="fw-bold">R @claim.TotalAmount?.ToString("F2")</td>
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(claim.Status)">@claim.Status</span>
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("ApprovalHistory", "Review", new { id = claim.ClaimId })" 
+                                                   class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-history me-1"></i>View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                @if (Model.Any())
+                                {
+                                    <tfoot class="table-secondary">
+                                        <tr>
+                                            <td colspan="5" class="text-end"><strong>Totals:</strong></td>
+                                            <td><strong>R @Model.Sum(c => c.AmountPerHour).ToString("F2")</strong></td>
+                                            <td><strong>R @Model.Sum(c => c.TotalAmount ?? 0).ToString("F2")</strong></td>
+                                            <td colspan="2"></td>
+                                        </tr>
+                                    </tfoot>
+                                }
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "approved" => "bg-success",
+            "rejected" => "bg-danger",
+            "pending" => "bg-warning",
+            "coordinator approved" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}
