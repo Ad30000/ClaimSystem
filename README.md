@@ -10,10 +10,3 @@ Here are the default login crdentials you will need:
 HR Email: hr@test.com 
 Password: hashed_password
 
-Programme Coordinator Email: coordinator@test.com 
-Password: hashed_password
-
-Acadmic Manager Eamil: manager@test.com 
-Password: hashed_password 
-
-The lecturer you make are your own details
