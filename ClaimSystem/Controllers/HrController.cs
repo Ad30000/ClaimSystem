@@ -387,5 +387,163 @@ namespace ClaimSystem.Controllers
 
             return View(lecturer);
         }
+
+        [HttpGet]
+        public IActionResult AddUser()
+        {
+            EnsureRole("HR");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddUser(UserViewModel model)
+        {
+            EnsureRole("HR");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Validate role
+                    var validRoles = new[] { "Lecturer", "Coordinator", "Manager", "HR" };
+                    if (!validRoles.Contains(model.Role))
+                    {
+                        ModelState.AddModelError("Role", "Invalid role selected.");
+                        return View(model);
+                    }
+
+                    // Check if email already exists
+                    if (_context.Users.Any(u => u.Email == model.Email))
+                    {
+                        ModelState.AddModelError("Email", "Email address is already registered.");
+                        return View(model);
+                    }
+
+                    // Create user account
+                    var user = new User
+                    {
+                        Username = model.Email,
+                        Email = model.Email,
+                        PasswordHash = model.Password, // In production, hash this properly
+                        Role = model.Role,
+                        IsActive = true,
+                    };
+
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+
+                    // Create profile based on role
+                    switch (model.Role.ToLower())
+                    {
+                        case "lecturer":
+                            var lecturer = new Lecturer
+                            {
+                                UserId = user.UserId,
+                                Name = model.Name,
+                                Department = model.Department,
+                                PhoneNumber = model.PhoneNumber,
+                                Address = model.Address
+                            };
+                            _context.Lecturers.Add(lecturer);
+                            break;
+
+                        case "coordinator":
+                        case "manager":
+                            // For now, coordinators and managers are stored as lecturers with different roles
+                            // You might want to create separate tables for these roles later
+                            var staff = new Lecturer
+                            {
+                                UserId = user.UserId,
+                                Name = model.Name,
+                                Department = model.Department,
+                                PhoneNumber = model.PhoneNumber,
+                                Address = model.Address
+                            };
+                            _context.Lecturers.Add(staff);
+                            break;
+
+                        case "hr":
+                            var hr = new HR
+                            {
+                                UserId = user.UserId,
+                                Name = model.Name,
+                                Department = model.Department,
+                                PhoneNumber = model.PhoneNumber,
+                                Address = model.Address,
+                                DefaultHourlyRate = 0 // Set default rate
+                            };
+                            _context.HR.Add(hr);
+                            break;
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"{model.Role} added successfully!";
+                    return RedirectToAction("ManageUsers");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Error adding user: {ex.Message}");
+                }
+            }
+
+            return View(model);
+        }
+
+        // Manage all users (Lecturers, Coordinators, Managers, HR)
+        public IActionResult ManageUsers()
+        {
+            EnsureRole("HR");
+
+            var users = _context.Users
+                .Include(u => u.Lecturer)
+                .Include(u => u.HR)
+                .Where(u => u.Role != "System") // Exclude system accounts if any
+                .Select(u => new UserManagementViewModel
+                {
+                    UserId = u.UserId,
+                    Email = u.Email,
+                    Role = u.Role,
+                    IsActive = u.IsActive,
+                    Name = u.Lecturer != null ? u.Lecturer.Name :
+                           u.HR != null ? u.HR.Name : "N/A",
+                    Department = u.Lecturer != null ? u.Lecturer.Department :
+                                u.HR != null ? u.HR.Department : "N/A"
+                })
+                .ToList();
+
+            return View(users);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleUserStatus(int id)
+        {
+            EnsureRole("HR");
+
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+                if (user != null)
+                {
+                    user.IsActive = !user.IsActive;
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"User {(user.IsActive ? "activated" : "deactivated")} successfully!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "User not found.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error updating user status: {ex.Message}";
+            }
+
+            return RedirectToAction("ManageUsers");
+        }
+
+
     }
 }

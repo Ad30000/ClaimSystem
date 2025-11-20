@@ -2,7 +2,7 @@
 
 namespace ClaimSystem.Models
 {
-    public class LecturerViewModel
+    public class UserViewModel
     {
         [Required(ErrorMessage = "Full name is required")]
         [Display(Name = "Full Name")]
@@ -25,5 +25,18 @@ namespace ClaimSystem.Models
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
         [Display(Name = "Password")]
         public string Password { get; set; } = null!;
+
+        [Required(ErrorMessage = "Role is required")]
+        [Display(Name = "User Role")]
+        public string Role { get; set; } = null!;
+    }
+    public class LecturerViewModel
+    {
+        public string Name { get; set; }
+        public string Department { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Address { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

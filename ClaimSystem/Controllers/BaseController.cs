@@ -3,7 +3,7 @@ using System.Security;
 
 namespace ClaimSystem.Controllers
 {
-    /*Microsoft (2024)*/
+   
     public class BaseController : Controller
     {
         protected string CurrentUserRole => HttpContext.Session.GetString("UserRole") ?? string.Empty;
@@ -43,4 +43,3 @@ namespace ClaimSystem.Controllers
     }
 }
 
-/* Microsoft (2024) Controller Class (Microsoft.AspNetCore.Mvc). Available at: https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controller (Accessed: 19 November 2025).*/
