@@ -84,7 +84,18 @@ namespace ClaimSystem.Controllers
                 claim.DateSubmitted = DateTime.Now;
                 claim.LastUpdatedDate = DateTime.Now;
                 claim.Status = "Pending";
-                claim.LecturerId = 1; // In real app, get from session: HttpContext.Session.GetInt32("UserId")
+
+                // FIXED: Get the actual lecturer ID from the logged-in user
+                var userId = HttpContext.Session.GetInt32("UserId");
+                var lecturer = _context.Lecturers.FirstOrDefault(l => l.UserId == userId);
+
+                if (lecturer == null)
+                {
+                    ModelState.AddModelError("", "Lecturer profile not found. Please contact administrator.");
+                    return View(claim);
+                }
+
+                claim.LecturerId = lecturer.LecturerId;
 
                 // Calculate total amount
                 claim.TotalAmount = claim.HoursWorked * claim.AmountPerHour;
@@ -160,7 +171,7 @@ namespace ClaimSystem.Controllers
                 return NotFound();
             }
 
-            // Pass user role to view for conditional buttons
+            // FIXED: Pass user role to view for conditional buttons - using ViewBag instead of TempData
             ViewBag.UserRole = userRole;
 
             return View(claim);
@@ -172,14 +183,15 @@ namespace ClaimSystem.Controllers
             var nextNumber = lastClaim == null ? 1 : int.Parse(lastClaim.ClaimNumber.Replace("CLM-", "")) + 1;
             return $"CLM-{nextNumber:D3}";
         }
-        // Add this method to the ClaimController class to fix CS0103
-        private new void EnsureAuthenticated()
-        {
-            var userRole = HttpContext.Session.GetString("UserRole");
-            if (string.IsNullOrEmpty(userRole))
-            {
-                RedirectToAction("Login", "Account");
-            }
-        }
+
+        // Remove this duplicate method as it's already inherited from BaseController
+        // private new void EnsureAuthenticated()
+        // {
+        //     var userRole = HttpContext.Session.GetString("UserRole");
+        //     if (string.IsNullOrEmpty(userRole))
+        //     {
+        //         RedirectToAction("Login", "Account");
+        //     }
+        // }
     }
 }
