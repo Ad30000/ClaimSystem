@@ -13,6 +13,7 @@ namespace ClaimSystem.Controllers
             _context = context;
         }
 
+        /*Adnan, Y. (2025)*/
         public IActionResult Login()
         {
             return View();
@@ -53,6 +54,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
+        /*Marco Code. (2024).*/
         // Simple password verification 
         private bool VerifyPassword(string enteredPassword, string storedPasswordHash)
         {
@@ -63,8 +65,8 @@ namespace ClaimSystem.Controllers
             // return BCrypt.Net.BCrypt.Verify(enteredPassword, storedPasswordHash);
         }
 
+        /*Marco Code. (2024).*/
         // Logout action
-
         public IActionResult Logout()
         {
             // Clear all session data
@@ -75,3 +77,5 @@ namespace ClaimSystem.Controllers
 }
 
 /* Adnan, Y. (2025). Session Management – Roles [PDF lecture slides]. CS405: Advanced Web Development. Emeris Durban North. Available at: https://advtechonline.sharepoint.com/:b:/r/sites/BCA1_VCKNDN/Shared%20Documents/PROG6212%20Group%201/Session%20Management_Guide.pdf?csf=1&web=1&e=g1uN5a (Accessed: 17 November 2025). */
+
+/*Marco Code. (2024). Employees Management system. Available at: https://www.youtube.com/playlist?list=PLHeVx_crBwV8-CFDeGQpUMoAP-PCIZKai (Accessed: 15 November 2025).*/

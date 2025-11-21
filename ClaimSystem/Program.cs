@@ -39,7 +39,7 @@ namespace ClaimSystem
                     // Ensure database is created and migrations are applied
                     context.Database.EnsureCreated();
 
-                    // Seed HR user if not exists
+                    // Seed HR user 
                     if (!context.Users.Any(u => u.Role == "HR"))
                     {
                         var hrUser = new User

@@ -26,8 +26,7 @@ public class UserViewModel
     [Required]
     public string Role { get; set; } = null!;
 
-    // Password is only for creation, not for editing
-    // Remove validation attributes for edit scenarios
+    
     public string? Password { get; set; }
 }
 

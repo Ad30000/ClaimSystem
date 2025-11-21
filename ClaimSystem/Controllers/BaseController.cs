@@ -11,6 +11,7 @@ namespace ClaimSystem.Controllers
         protected int CurrentUserId => HttpContext.Session.GetInt32("UserId") ?? 0;
         protected string CurrentUserEmail => HttpContext.Session.GetString("UserEmail") ?? string.Empty;
 
+        /*Marco Code. (2024).*/
         protected void EnsureAuthenticated()
         {
             if (string.IsNullOrEmpty(CurrentUserRole))

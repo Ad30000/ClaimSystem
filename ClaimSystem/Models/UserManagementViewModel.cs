@@ -10,7 +10,7 @@ public class UserManagementViewModel
     public string Name { get; set; } = null!;
     public string Department { get; set; } = null!;
 
-    // Add these properties for the action links
+    
     public int? LecturerId { get; set; }
-    public int? HRId { get; set; }
+    public int? HRId { get; set; } 
 }
