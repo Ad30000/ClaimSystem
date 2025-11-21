@@ -1,101 +1,4 @@
 ﻿
-//using ClaimSystem.DB;
-//using ClaimSystem.Models;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-
-//namespace ClaimSystem.Controllers
-//{
-
-//    public class ReviewController : Controller
-//    {
-//        private readonly ClaimDatabaseContext _context;
-
-//        public ReviewController(ClaimDatabaseContext context)
-//        {
-//            _context = context;
-//        }
-
-//        public IActionResult Index()
-//        {
-//            var pendingClaims = _context.Claims
-//                .Include(c => c.Lecturer)
-//                .ThenInclude(l => l.User)
-//                .Where(c => c.Status == "Pending")
-//                .ToList();
-
-//            return View(pendingClaims);
-//        }
-
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Approve(int id)
-//        {
-//            var claim = await _context.Claims.FindAsync(id);
-//            if (claim != null)
-//            {
-//                // Use "Coordinator Approved" instead of "Approved"
-//                claim.Status = "Coordinator Approved";
-//                claim.LastUpdatedDate = DateTime.Now;
-//                await _context.SaveChangesAsync();
-
-//                TempData["SuccessMessage"] = "Claim approved successfully!";
-//            }
-
-//            return RedirectToAction("Index");
-//        }
-
-//        //// Two-step approval process
-//        //public async Task<IActionResult> Approve(int id, string comments)
-//        //{
-//        //    var claim = await _context.Claims.FindAsync(id);
-//        //    var userRole = HttpContext.Session.GetString("UserRole");
-
-//        //    if (userRole == "Coordinator")
-//        //    {
-//        //        claim.Status = "Coordinator Approved";
-//        //        // Create approval record
-//        //        var approval = new ClaimApproval
-//        //        {
-//        //            ClaimId = id,
-//        //            UserId = HttpContext.Session.GetInt32("UserId").Value,
-//        //            Role = "Coordinator",
-//        //            Action = "Approve",
-//        //            Status = "Coordinator Approved",
-//        //            Comments = comments,
-//        //            ApprovalDate = DateTime.Now
-//        //        };
-//        //        _context.ClaimApprovals.Add(approval);
-//        //    }
-//        //    else if (userRole == "Manager")
-//        //    {
-//        //        claim.Status = "Approved";
-//        //        // Similar approval record for manager
-//        //    }
-
-//        //    await _context.SaveChangesAsync();
-//        //    return RedirectToAction("Index");
-//        //}
-
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Reject(int id)
-//        {
-//            var claim = await _context.Claims.FindAsync(id);
-//            if (claim != null)
-//            {
-//                claim.Status = "Rejected";
-//                claim.LastUpdatedDate = DateTime.Now;
-//                await _context.SaveChangesAsync();
-
-//                TempData["SuccessMessage"] = "Claim rejected!";
-//            }
-
-//            return RedirectToAction("Index");
-//        }
-//    }
-//}
-
 using ClaimSystem.DB;
 using ClaimSystem.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -114,6 +17,7 @@ namespace ClaimSystem.Controllers
             _context = context;
         }
 
+        /*Marco Code. (2024).*/
         public IActionResult Index()
         {
             EnsureRole("Coordinator", "Manager");
@@ -159,7 +63,7 @@ namespace ClaimSystem.Controllers
             }
         }
 
-        
+        /*Marco Code. (2024).*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
@@ -221,7 +125,7 @@ namespace ClaimSystem.Controllers
         }
 
 
-
+        /*Marco Code. (2024).*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id, string? comments = null)
@@ -278,6 +182,7 @@ namespace ClaimSystem.Controllers
             return RedirectToAction("Index");
         }
 
+        /*Marco Code. (2024).*/
         // GET: Review/ApprovalHistory/5
         public IActionResult ApprovalHistory(int id)
         {
@@ -314,3 +219,6 @@ namespace ClaimSystem.Controllers
         }
     }
 }
+
+
+/*Marco Code. (2024). Employees Management system. Available at: https://www.youtube.com/playlist?list=PLHeVx_crBwV8-CFDeGQpUMoAP-PCIZKai (Accessed: 15 November 2025).*/

@@ -14,6 +14,7 @@ namespace ClaimSystem.Controllers
             _context = context;
         }
 
+        /*Marco Code. (2024).*/
         public IActionResult Index()
         {
             EnsureAuthenticated();
@@ -32,6 +33,7 @@ namespace ClaimSystem.Controllers
             return View(claims);
         }
 
+        /*Marco Code. (2024).*/
         [HttpGet]
         public IActionResult Create()
         {
@@ -56,6 +58,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
+        /*Marco Code. (2024).*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Claim claim, IFormFile supportingDoc)
@@ -148,6 +151,7 @@ namespace ClaimSystem.Controllers
             return View(claim);
         }
 
+        /*Marco Code. (2024).*/
         [HttpGet]
         public IActionResult Details(int id)
         {
@@ -177,6 +181,7 @@ namespace ClaimSystem.Controllers
             return View(claim);
         }
 
+        /*Marco Code. (2024).*/
         private string GenerateClaimNumber()
         {
             var lastClaim = _context.Claims.OrderByDescending(c => c.ClaimId).FirstOrDefault();
@@ -186,3 +191,5 @@ namespace ClaimSystem.Controllers
 
     }
 }
+
+/*Marco Code. (2024). Employees Management system. Available at: https://www.youtube.com/playlist?list=PLHeVx_crBwV8-CFDeGQpUMoAP-PCIZKai (Accessed: 15 November 2025).*/

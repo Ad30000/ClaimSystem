@@ -15,7 +15,7 @@ namespace ClaimSystem.Controllers
             _context = context;
         }
 
-        
+        /*Marco Code. (2024).*/
         // HR Dashboard 
         public IActionResult Dashboard()
         {
@@ -53,6 +53,7 @@ namespace ClaimSystem.Controllers
             return View(viewModel);
         }
 
+        /*Marco Code. (2024).*/
         // Manage Lecturers with CRUD operations
         public IActionResult ManageLecturers()
         {
@@ -68,6 +69,7 @@ namespace ClaimSystem.Controllers
             return View(lecturers);
         }
 
+        /*Marco Code. (2024).*/
         // Add new lecturer
         [HttpGet]
         public IActionResult AddLecturer()
@@ -80,6 +82,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
+        /*Marco Code. (2024).*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddLecturer(LecturerViewModel model)
@@ -130,6 +133,7 @@ namespace ClaimSystem.Controllers
             return View(model);
         }
 
+        /*Marco Code. (2024).*/
         // Edit lecturer
         [HttpGet]
         public IActionResult EditLecturer(int id)
@@ -151,6 +155,7 @@ namespace ClaimSystem.Controllers
             return View(lecturer);
         }
 
+        /*Marco Code. (2024).*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditLecturer(int LecturerId, string Name, string Department, string PhoneNumber, string Address, int UserId)
@@ -195,6 +200,7 @@ namespace ClaimSystem.Controllers
             return _context.Lecturers.Any(e => e.LecturerId == id);
         }
 
+        /*Marco Code. (2024).*/
         // Generate Reports with filtering
         [HttpGet]
         public IActionResult GenerateReports(string statusFilter, string lecturerFilter, DateTime? startDate, DateTime? endDate)
@@ -243,6 +249,7 @@ namespace ClaimSystem.Controllers
             return View(claims);
         }
 
+        /*Marco Code. (2024).*/
         // Export to Excel 
         public IActionResult ExportToExcel(string statusFilter, string lecturerFilter, DateTime? startDate, DateTime? endDate)
         {
@@ -290,6 +297,7 @@ namespace ClaimSystem.Controllers
             return File(bytes, "text/csv", $"ClaimsReport_{DateTime.Now:yyyyMMddHHmmss}.csv");
         }
 
+        /*Marco Code. (2024).*/
         // Set default hourly rate for lecturers
         [HttpGet]
         public IActionResult SetHourlyRate()
@@ -302,6 +310,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
+        /*Marco Code. (2024).*/
         [HttpPost]
         public async Task<IActionResult> SetHourlyRate(decimal hourlyRate)
         {
@@ -331,6 +340,7 @@ namespace ClaimSystem.Controllers
             }
         }
 
+        /*Marco Code. (2024).*/
         // Activate/Deactivate lecturer accounts
         [HttpPost]
         public async Task<IActionResult> ToggleLecturerStatus(int id)
@@ -366,6 +376,7 @@ namespace ClaimSystem.Controllers
             return RedirectToAction("ManageLecturers");
         }
 
+        /*Marco Code. (2024).*/
         // View lecturer details
         public IActionResult LecturerDetails(int id)
         {
@@ -388,6 +399,7 @@ namespace ClaimSystem.Controllers
             return View(lecturer);
         }
 
+        /*Marco Code. (2024).*/
         [HttpGet]
         public IActionResult AddUser()
         {
@@ -395,6 +407,7 @@ namespace ClaimSystem.Controllers
             return View();
         }
 
+        /*Marco Code. (2024).*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddUser(UserViewModel model)
@@ -491,7 +504,7 @@ namespace ClaimSystem.Controllers
             return View(model);
         }
 
-        // Manage all users (Lecturers, Coordinators, Managers, HR)
+        /*Marco Code. (2024).*/
         // Manage all users (Lecturers, Coordinators, Managers, HR)
         public IActionResult ManageUsers()
         {
@@ -520,6 +533,7 @@ namespace ClaimSystem.Controllers
             return View(users);
         }
 
+        /*Marco Code. (2024).*/
         [HttpPost]
         public async Task<IActionResult> ToggleUserStatus(int id)
         {
@@ -548,6 +562,7 @@ namespace ClaimSystem.Controllers
             return RedirectToAction("ManageUsers");
         }
 
+        /*Marco Code. (2024).*/
         // Edit User
         [HttpGet]
         public IActionResult EditUser(int id)
@@ -578,6 +593,7 @@ namespace ClaimSystem.Controllers
             return View(model);
         }
 
+        /*Marco Code. (2024).*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(UserViewModel model)
@@ -657,6 +673,7 @@ namespace ClaimSystem.Controllers
             }
         }
 
+        /*Marco Code. (2024).*/
         // User Details
         public IActionResult UserDetails(int id)
         {
@@ -679,3 +696,5 @@ namespace ClaimSystem.Controllers
 
     }
 }
+
+/*Marco Code. (2024). Employees Management system. Available at: https://www.youtube.com/playlist?list=PLHeVx_crBwV8-CFDeGQpUMoAP-PCIZKai (Accessed: 15 November 2025).*/

@@ -19,6 +19,7 @@ namespace ClaimSystem.Controllers
             }
         }
 
+        /*Marco Code. (2024).*/
         // Helper method to ensure user has one of the specified roles
         protected void EnsureRole(params string[] allowedRoles)
         {
@@ -30,12 +31,14 @@ namespace ClaimSystem.Controllers
             }
         }
 
+        /*Marco Code. (2024).*/
         // Helper method to check if user is in a specific role
         protected bool IsInRole(string role)
         {
             return CurrentUserRole.Equals(role, StringComparison.OrdinalIgnoreCase);
         }
 
+        /*Marco Code. (2024).*/
         // Helper method to get user role for views
         protected string GetUserRole()
         {
@@ -44,3 +47,4 @@ namespace ClaimSystem.Controllers
     }
 }
 
+/*Marco Code. (2024). Employees Management system. Available at: https://www.youtube.com/playlist?list=PLHeVx_crBwV8-CFDeGQpUMoAP-PCIZKai (Accessed: 15 November 2025).*/

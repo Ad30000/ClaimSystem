@@ -57,8 +57,8 @@ namespace ClaimSystem
                         var hrProfile = new HR
                         {
                             UserId = hrUser.UserId,
-                            Name = "HR Administrator",
-                            Department = "Human Resources",
+                            Name = "",
+                            Department = "",
                             PhoneNumber = "",
                             DefaultHourlyRate = 500.00m
                         };
@@ -118,18 +118,4 @@ namespace ClaimSystem
  * Accessed: 20 October 2025
  */
 
-/*HR details 
- * Email: hr@test.com
- * Password: hashed_password
- */
-
-/*Manager details
- * Eamil: manager@test.com
- * Password: hashed_password
- */
-
-/*Progammer Coordinator details
- * Eamil: coordinator@test.com
- * Password: hashed_password
- */
 
