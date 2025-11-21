@@ -10,3 +10,7 @@ Here are the default login crdentials you will need:
 HR Email: hr@test.com 
 Password: hashed_password
 
+Youtube links 
+PowerPoint Presentation: https://youtu.be/uPqdQU7hfV4
+Live demo: https://youtu.be/a-sgY9mZUEw
+
